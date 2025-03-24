@@ -10,22 +10,28 @@ end
 function step!(state::Life)
     curr = state.current_frame
     next = state.next_frame
+    n, m = size(curr)
 
-    #=
-    TODO: вместо случайного шума
-    реализовать один шаг алгоритма "Игра жизнь"
-    =#
-    for i in 1:length(curr)
-        curr[i] = rand(0:1)
+    for i in 1:n
+        for j in 1:m
+            live_neighbors = 0
+            for x in -1:1
+                for y in -1:1
+                    if (x != 0 || y != 0)
+                        live_neighbors += curr[mod1(i + x, n), mod1(j + y, m)]
+                    end
+                end
+            end
+
+            if curr[i, j] == 1
+                next[i, j] = (live_neighbors == 2 || live_neighbors == 3) ? 1 : 0
+            else
+                next[i, j] = (live_neighbors == 3) ? 1 : 0
+            end
+        end
     end
 
-    # Подсказка для граничных условий - тор:
-    # julia> mod1(10, 30)
-    # 10
-    # julia> mod1(31, 30)
-    # 1
-
-    return nothing
+    state.current_frame, state.next_frame = state.next_frame, state.current_frame
 end
 
 function (@main)(ARGS)
